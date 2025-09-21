@@ -1,0 +1,38 @@
+# Set line endings to LF for shell scripts and batch files to avoid issues across platforms
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Ensure consistent line endings for Docker files
+Dockerfile* text eol=lf
+docker-compose*.yml text eol=lf
+
+# Prisma schema and migration files
+*.prisma text eol=lf
+prisma/migrations/** text eol=lf
+
+# TypeScript and JavaScript files
+*.ts text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+
+# CSS and other web assets
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+
+# Configuration files
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+
+# Environment files
+.env* text eol=lf
+
+# Binary files should not be processed
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary

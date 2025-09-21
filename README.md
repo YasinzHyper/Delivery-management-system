@@ -27,9 +27,113 @@ email: tushar@gmail.com
 password:123456
 ```
 
-## Getting Started
+## Quick Start with Docker 🐳
 
-This instruction will get you a copy of this project up and running on your local machine
+The fastest way to get the Delivery Management System running is with Docker. This approach requires no local Node.js installation or manual database setup.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) (v20.10 or higher)
+- [Docker Compose](https://docs.docker.com/compose/install/) (v2.0 or higher)
+
+### Quick Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/maruffahmed/Delivery-management-system.git
+   cd Delivery-management-system
+   ```
+
+2. **Run the setup script:**
+   
+   **For Windows:**
+   ```cmd
+   docker\scripts\setup.bat
+   ```
+   
+   **For Linux/macOS:**
+   ```bash
+   chmod +x docker/scripts/setup.sh
+   ./docker/scripts/setup.sh
+   ```
+
+3. **Access the application:**
+   - **Frontend:** http://localhost:3000
+   - **Backend API:** http://localhost:8000
+   - **Database:** localhost:3306
+
+That's it! The script will automatically:
+- Build all Docker containers
+- Set up the MySQL database
+- Run database migrations
+- Seed the database with initial data
+- Start all services
+
+### Docker Management Commands
+
+```bash
+# Start all services
+docker-compose -f compose.yml up -d
+
+# Stop all services
+docker-compose -f compose.yml down
+
+# View logs
+docker-compose -f compose.yml logs -f
+
+# Rebuild containers (after code changes)
+docker-compose -f compose.yml up --build -d
+
+# Reset database (removes all data)
+docker-compose -f compose.yml down -v
+docker-compose -f compose.yml up -d
+```
+
+### Services Overview
+
+| Service | Container Name | Port | Description |
+|---------|---------------|------|-------------|
+| Frontend | delivery-frontend | 3000 | Remix.js web application |
+| Backend | delivery-backend | 8000 | NestJS API server |
+| Database | delivery-db | 3306 | MySQL 8.0 database |
+
+### Environment Configuration
+
+The Docker setup includes preconfigured environment files:
+- `backend/.env.docker` - Backend environment variables
+- `frontend/.env.docker` - Frontend environment variables
+
+These files are automatically copied to `.env` files during setup. You can modify them for custom configurations.
+
+### Troubleshooting Docker Setup
+
+**Issue: Port already in use**
+```bash
+# Check what's using the port
+netstat -an | grep :3000
+# Stop the conflicting service or change ports in docker-compose.yml
+```
+
+**Issue: Database connection failed**
+```bash
+# Check if database container is running
+docker-compose -f compose.yml ps
+# View database logs
+docker-compose -f compose.yml logs database
+```
+
+**Issue: Frontend/Backend not accessible**
+```bash
+# Check container status
+docker-compose -f compose.yml ps
+# View service logs
+docker-compose -f compose.yml logs frontend
+docker-compose -f compose.yml logs backend
+```
+
+## Manual Setup (Alternative)
+
+If you prefer not to use Docker, you can set up the project manually:
 
 ### Prerequisites
 
@@ -37,7 +141,7 @@ You need [Node JS](https://nodejs.org) (v18.x.x) installed on your local machine
 
 ### Installing ⚙️
 
-Run the followning command to install all the packages:
+Run the following command to install all the packages:
 
 ```sh
 npm run setup
@@ -63,7 +167,7 @@ API_BASE_URL = "http://localhost:8000"
 
 ### Database Migration 💿
 
-Run the followning command to migrate the prisma schema:
+Run the following command to migrate the prisma schema:
 
 ```sh
 npm run prisma:migrate

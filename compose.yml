@@ -1,14 +1,71 @@
-# specify the version of docker-compose
-version: "3.8"
-
 services:
-  db:
-    image: mysql:latest
-    container_name: dpdms_database
+  # MySQL Database
+  database:
+    image: mysql:8.0
+    container_name: delivery-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: delivery
+      MYSQL_USER: delivery_user
+      MYSQL_PASSWORD: delivery_password
     ports:
       - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=dpdms
-      - MYSQL_DATABASE=dpdms
     volumes:
-      - ./data/mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - delivery-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: delivery-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      - DATABASE_URL=mysql://delivery_user:delivery_password@database:3306/delivery?sslmode=disable
+      - JWT_SECRET=your-jwt-secret-key-change-in-production
+      - BCRYPT_SALT_OR_ROUNDS=10
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - delivery-network
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: delivery-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - SESSION_SECRET=your-session-secret-change-in-production
+      - API_BASE_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - delivery-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  mysql_data:
+
+networks:
+  delivery-network:
+    driver: bridge
